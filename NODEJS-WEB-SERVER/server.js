@@ -1,22 +1,45 @@
 const http = require("http");
 
 const requestListener = (request, response) => {
-  response.setHeader("Content-Type", "text/html");
-  response.statusCode = 200;
+  // Mengubah Response Header ke JSON
+  response.setHeader("Content-Type", "application/json");
+  response.setHeader("X-Powered-By", "NodeJS");
 
   const { method, url } = request;
 
   // Routing with Method GET & POST, and handle 404
   if (url === "/") {
     if (method === "GET") {
-      response.end("<h1>Home Page</h1>");
+      // Membuat response status sesuai dengan status code
+      // 200 = OK
+      response.statusCode = 200;
+      response.end(
+        JSON.stringify({
+          message: "Halo! ini adalah halaman home",
+        })
+      );
     } else {
-      response.statusCode = 404;
-      response.end("<h1>404 Page Not Found</h1>");
+      // 400 = Bad Request
+      response.statusCode = 400;
+
+      // Membuat response body sesuai dengan status code dengan response JSON
+      response.end(
+        JSON.stringify({
+          message: "Halaman tidak ditemukan!",
+        })
+      );
     }
   } else if (url === "/about") {
     if (method === "GET") {
-      response.end("<h1>About Page</h1>");
+      // 200 = OK
+      response.statusCode = 200;
+
+      // Membuat response body sesuai dengan status code dengan response JSON
+      response.end(
+        JSON.stringify({
+          message: "Halo! ini adalah halaman about",
+        })
+      );
     } else if (method === "POST") {
       let body = [];
 
@@ -27,12 +50,38 @@ const requestListener = (request, response) => {
       request.on("end", () => {
         body = Buffer.concat(body).toString();
         const { name } = JSON.parse(body);
-        response.end(`<h1>Hello ${name}</h1> ini adalah halaman about`);
+
+        // 200 = OK
+        response.statusCode = 200;
+
+        // Membuat response body sesuai dengan status code dengan response JSON
+        response.end(
+          JSON.stringify({
+            message: `Hello ${name}</h1> ini adalah halaman about`,
+          })
+        );
       });
     } else {
-      response.statusCode = 404;
-      response.end("<h1>404 Page Not Found</h1>");
+      // 400 = Bad Request
+      response.statusCode = 400;
+
+      // Membuat response body sesuai dengan status code dengan response JSON
+      response.end(
+        JSON.stringify({
+          message: `Halaman tidak dapat diakses dengan ${method} request`,
+        })
+      );
     }
+  } else {
+    // 400 = Bad Request
+    response.statusCode = 404;
+    
+    // Membuat response body sesuai dengan status code dengan response JSON
+    response.end(
+      JSON.stringify({
+        message: "Halaman tidak ditemukan!",
+      })
+    );
   }
 };
 
